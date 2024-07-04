@@ -1,0 +1,34 @@
+# gitpack bash completion
+
+_gitpack()
+{
+	local cur prev words cword
+	_init_completion || return
+
+	local commands="add rm"
+	local options="--token -h --help"
+
+	case "$prev" in
+	gitpack)
+		COMPREPLY=( $(compgen -W "$commands $options" -- "$cur") )
+		return
+		;;
+	add|rm)
+		if test "$cur" = *@*
+		then
+			COMPREPLY=( $(compgen -W "" -- "$cur") )
+		else
+			COMPREPLY=( $(compgen -o default -- "$cur") )
+		fi
+		return
+		;;
+	--token)
+		COMPREPLY=( $(compgen -o default -- "$cur") )
+		return
+		;;
+	esac
+
+	COMPREPLY=( $(compgen -W "$commands $options" -- "$cur") )
+}
+
+complete -F _gitpack gitpack
