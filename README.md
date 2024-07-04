@@ -71,6 +71,20 @@ gitpack rm <user>/<repo>[@<branch>]
 sudo gitpack rm juliankahlert/gitpack@main
 ```
 
+### Accessing private Repositories
+
+To access private repositories the `--token PRIVATE_ACCESS_TOKEN` can be used.
+
+```bash
+gitpack --token <PRIVATE_ACCESS_TOKEN> add <user>/<repo>[@<branch>]
+```
+
+**Example:**
+
+```bash
+sudo gitpack --token <PRIVATE_ACCESS_TOKEN> add juliankahlert/gitpack@main
+```
+
 ## Manifest File
 
 The `.gitpack.yaml` manifest file defines the actions for installing and uninstalling the software. It should be located in the root of the repository. The file structure is as follows:
