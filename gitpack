@@ -171,14 +171,19 @@ class Client
     def download_file(url, destination, ssl = false)
       uri = URI.parse(url)
 
+      token = @options['token']
+      request = Net::HTTP::Get.new(uri)
+      request['Authorization'] = "token #{token}" if token
+
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = ssl
 
-      http.request_get(uri.request_uri) do |response|
+      http.request(request) do |response|
         if response.code == '302'
           new_location = response['location']
           return download_file(new_location, destination, ssl)
         elsif response.code != '200'
+          puts "Error: Download of #{url} failed: #{response}"
           return false
         end
 
@@ -187,11 +192,9 @@ class Client
             file.write(chunk)
           end
         end
-
-        return true
       end
 
-      false
+      true
     end
 
     def run
@@ -202,6 +205,7 @@ class Client
   class AddTool < Tool
     def initialize(name, opt, argv)
       @name = name
+      @options = opt.to_h
       @refspec = argv.pop
       match = @refspec.match(/^([^\/]+\/[^@]+)@(.+)$/)
       match = @refspec.match(/^([^\/]+\/[^@]+)$/) unless match
@@ -240,17 +244,21 @@ class Client
     def run
       Dir.mktmpdir('gitpack') do |tmp_dir|
         repo_dir = download_and_unpack_repo(tmp_dir)
+        return false unless repo_dir
+
         Dir.chdir(repo_dir) do
           pack = check_gitpack_yaml
           if !pack
             puts ".gitpack.yaml not found or could not be loaded from #{repo_dir}"
-            return
+            return false
           end
 
           # puts "Repository unpacked successfully in #{repo_dir}"
           pack.add.run(pack)
         end
       end
+
+      true
     end
   end
 
@@ -262,16 +270,20 @@ class Client
     def run
       Dir.mktmpdir('gitpack') do |tmp_dir|
         repo_dir = download_and_unpack_repo(tmp_dir)
+        return false unless repo_dir
+
         Dir.chdir(repo_dir) do
           pack = check_gitpack_yaml
           if !pack
             puts ".gitpack.yaml not found or could not be loaded from #{repo_dir}"
-            return
+            return false
           end
 
           pack.rm.run(pack)
         end
       end
+
+      true
     end
   end
 
@@ -280,9 +292,13 @@ class Client
     opt_parser = OptionParser.new do |opts|
       opts.banner = 'Usage: gitpack [options] add|rm <user>/<repo>[@<branch>]'
 
+      opts.on('--token TOKEN', 'GitHub Personal Access Token') do |val|
+        @options['token'] = val
+      end
+
       opts.on('-h', '--help', 'Prints this help') do
         puts opts
-        exit
+        exit(0)
       end
     end
 
@@ -304,4 +320,5 @@ class Client
 end
 
 client = Client.new
-client.main(ARGV)
+exit(1) unless client.main(ARGV)
+exit(0)
