@@ -1,0 +1,9 @@
+---
+gitpack:
+  name: gitpack
+  category: bin
+  files:
+  - "{{prefix}}/bin/gitpack"
+  add:
+  - sh:
+    - sudo make install
