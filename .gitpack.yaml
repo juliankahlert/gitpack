@@ -4,6 +4,7 @@ gitpack:
   category: bin
   files:
   - "{{prefix}}/bin/gitpack"
+  - "/etc/bash_completion.d/gitpack"
   add:
   - sh:
     - sudo make install
