@@ -9,6 +9,10 @@ charset = utf-8
 indent_style = tab
 indent_size = 8
 
+[*.{bash_completion}]
+indent_style = tab
+indent_size = 8
+
 [*.{rb,yml,yaml}]
 indent_style = space
 indent_size = 2
