@@ -53,7 +53,7 @@ class GitPackActionScript
   end
 
   def run_command(script)
-    sudo_user = ENV['SUDO_USER']
+    sudo_user = ENV['SUDO_USER'] || ''
     script = script.gsub('{{prefix}}', PREFIX)
     script = script.gsub('{{sudo.user}}', sudo_user)
 
