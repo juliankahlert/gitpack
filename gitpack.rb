@@ -60,7 +60,7 @@ class GitPackActionScript
     return system(script)
   end
 
-  def run(gitpack)
+  def run(_gitpack)
     @scripts.all? { |sh| run_command(sh) }
   end
 end
