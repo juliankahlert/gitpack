@@ -1,5 +1,7 @@
 # GitPack
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/520284baee3d41b48b45983d9fc143ba)](https://app.codacy.com/gh/juliankahlert/gitpack?utm_source=github.com&utm_medium=referral&utm_content=juliankahlert/gitpack&utm_campaign=Badge_Grade)
+
 GitPack is a Ruby program that allows you to install (`add`) and uninstall (`rm`) software directly from repositories containing a `.gitpack.yaml` manifest file.
 
 ## Features
