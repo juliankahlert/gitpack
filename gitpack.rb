@@ -241,24 +241,31 @@ class Client
       File.join(tmp_dir, "#{repo_name}-#{@branch.gsub('/', '-')}")
     end
 
-    def run
+    def load_fail?(pack)
+      return false if pack
+
+      puts ".gitpack.yaml not found or could not be loaded from #{repo_dir}"
+      true
+    end
+
+    def run_helper(&block)
       Dir.mktmpdir('gitpack') do |tmp_dir|
         repo_dir = download_and_unpack_repo(tmp_dir)
         return false unless repo_dir
 
         Dir.chdir(repo_dir) do
           pack = check_gitpack_yaml
-          if !pack
-            puts ".gitpack.yaml not found or could not be loaded from #{repo_dir}"
-            return false
-          end
+          return false if load_fail?(pack)
 
-          # puts "Repository unpacked successfully in #{repo_dir}"
-          pack.add.run(pack)
+          block.call(pack)
         end
       end
 
       true
+    end
+
+    def run
+      run_helper { |pack| pack.add.run(pack) }
     end
   end
 
@@ -268,22 +275,7 @@ class Client
     end
 
     def run
-      Dir.mktmpdir('gitpack') do |tmp_dir|
-        repo_dir = download_and_unpack_repo(tmp_dir)
-        return false unless repo_dir
-
-        Dir.chdir(repo_dir) do
-          pack = check_gitpack_yaml
-          if !pack
-            puts ".gitpack.yaml not found or could not be loaded from #{repo_dir}"
-            return false
-          end
-
-          pack.rm.run(pack)
-        end
-      end
-
-      true
+      run_helper { |pack| pack.rm.run(pack) }
     end
   end
 
