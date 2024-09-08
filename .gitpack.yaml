@@ -2,9 +2,10 @@
 gitpack:
   name: gitpack
   category: bin
-  files:
-  - "{{prefix}}/bin/gitpack"
-  - "/etc/bash_completion.d/gitpack"
+  files: "{{gem-contents}}"
   add:
   - sh:
     - sudo make install
+  rm:
+  - sh:
+    - sudo make uninstall
