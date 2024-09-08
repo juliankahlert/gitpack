@@ -1,5 +1,7 @@
 # GitPack
 
+[![GitHub Tag](https://img.shields.io/github/v/tag/juliankahlert/gitpack)](https://github.com/juliankahlert/gitpack)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/t/juliankahlert/gitpack)](https://github.com/juliankahlert/gitpack/commits/)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/e26a46bde8b44bae91e830d2aa145fb7)](https://app.codacy.com/gh/juliankahlert/gitpack/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 ## Introduction
