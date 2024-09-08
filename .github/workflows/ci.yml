@@ -11,8 +11,37 @@ on:
       - main
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@52753b7da854d5c07df37391a986c76ab4615999
+        with:
+          ruby-version: '3.0'
+
+      - name: Install dependencies
+        run: |
+          gem install bundler
+          bundle install
+
+      - name: Run tests
+        run: |
+          rufo -c lib/
+          bundle exec rspec
+
+      - name: Report coverage
+        run: |
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage/coverage.xml
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+
   build:
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - name: Checkout code
