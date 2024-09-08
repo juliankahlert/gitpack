@@ -53,3 +53,8 @@ dkms.conf
 
 # Ruby
 *.gem
+.yardoc/
+
+# General
+doc/
+coverage/

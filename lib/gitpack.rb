@@ -36,8 +36,7 @@ module GitPack
   # Class for handling the removal of GitPack files.
   class GitPackActionRemove
     # Initializes a new GitPackActionRemove instance.
-    def initialize()
-    end
+    def initialize; end
 
     # String representation of the remove action
     #
@@ -51,7 +50,7 @@ module GitPack
     # @param gitpack [GitPack] The GitPack instance.
     # @return [Boolean] true if all files are removed, false otherwise.
     def run(gitpack)
-      gitpack.files.all? { |f| system("rm #{f}") }
+      gitpack.files.all? { |f| File.delete(f) }
     end
   end
 
@@ -68,7 +67,8 @@ module GitPack
     #
     # @return [String] The action description.
     def to_s
-      "GitPackActionStript: { #{@scripts} }"
+      scripts = [@scripts].flatten.map { |s| "< #{s} >" }.join(', ')
+      "GitPackActionScript: { [#{scripts}] }"
     end
 
     # Runs a script command, replacing placeholders.
@@ -80,7 +80,7 @@ module GitPack
       script = script.gsub('{{prefix}}', PREFIX)
       script = script.gsub('{{sudo.user}}', sudo_user)
 
-      return system(script)
+      system(script)
     end
 
     # Executes all script actions.
@@ -100,8 +100,8 @@ module GitPack
     def initialize(ary)
       @actions = []
       ary.each do |action|
-        action = parse_hash_action(action) if action.class == Hash
-        action = parse_string_action(action) if action.class == String
+        action = parse_hash_action(action) if action.is_a?(Hash)
+        action = parse_string_action(action) if action.is_a?(String)
         @actions << action
       end
       @actions << GitPackActionRemove.new if ary.empty?
@@ -112,7 +112,7 @@ module GitPack
     # @param action [Hash] The hash action.
     # @return [GitPackActionScript] The parsed script action.
     def parse_hash_action(action)
-      return GitPackActionScript.new(action['sh']) if action['sh']
+      GitPackActionScript.new(action['sh']) if action['sh']
     end
 
     # Parses a string action.
@@ -120,14 +120,15 @@ module GitPack
     # @param action [String] The string action.
     # @return [GitPackActionRemove] The remove action.
     def parse_string_action(action)
-      return GitPackActionRemove.new if action == 'remove_files'
+      GitPackActionRemove.new if action == 'remove_files'
     end
 
     # String representation of GitPack actions.
     #
     # @return [String] The action list as a string.
     def to_s
-      "GitPackActions: < #{@actions} >"
+      actions = [@actions].flatten.map { |a| "#{a}" }.join(', ')
+      "GitPackActions: < [#{actions}] >"
     end
 
     # Runs all actions for the GitPack.
@@ -135,7 +136,7 @@ module GitPack
     # @param gitpack [GitPack] The GitPack instance.
     # @return [Boolean] true if all actions run successfully, false otherwise.
     def run(gitpack)
-      @actions.all? { |action| return false unless action.run(gitpack) }
+      @actions.all? { |action| action.run(gitpack) }
     end
   end
 
@@ -169,10 +170,12 @@ module GitPack
     # @return [String] The processed string.
     def handle_variables(str)
       case str
-      when '{{prefix}}'
+      when /{{prefix}}/
         str.gsub('{{prefix}}', PREFIX)
       when '{{gem-contents}}'
         `gem contents #{@name}`
+      else
+        str
       end
     end
 
@@ -183,7 +186,7 @@ module GitPack
     def parse_files(files)
       case files
       when Array
-        files.to_a.map { |f| handle_variables(f) }
+        files.map { |f| handle_variables(f) }
       when String
         [handle_variables(files)]
       end
@@ -438,7 +441,7 @@ module GitPack
     def main(argv)
       parse_args(argv)
 
-      unless @tool.ok
+      unless @tool && @tool.ok
         puts 'Usage: gitpack [options] add|rm <user>/<repo>[@<branch>]'
         return
       end
